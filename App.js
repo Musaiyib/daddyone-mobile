@@ -44,6 +44,11 @@ function App() {
     OpenSans_800ExtraBold_Italic,
   });
   const Stack = createNativeStackNavigator();
+  useEffect(() => {
+    getStoredData()
+      .then((res) => setUser(JSON.parse(res)))
+      .catch((error) => console.error(error));
+  }, [user]);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -58,10 +63,6 @@ function App() {
   if (!fontsLoaded) {
     return <Text>Loading...</Text>;
   }
-
-  getStoredData().then((res) => {
-    setUser(res);
-  });
 
   return (
     <PaperProvider>

@@ -6,6 +6,7 @@ import {
   Button,
   Platform,
   Pressable,
+  Animated,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -14,13 +15,70 @@ import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import DataScreen from "./DataScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { getStoredData } from "../helpers/dataStorage";
+import { useState, useEffect } from "react";
+import { user_balance } from "../api/user_api";
 
 const HomeStack = createNativeStackNavigator();
 
 export default function HomeScreen({ navigation }) {
+  const [user, setUser] = useState();
+  const [balance, setBalance] = useState();
+  const [rotation, setRotation] = useState(new Animated.Value(0));
+  const [isRotating, setIsRotating] = useState(false);
   const handleNavigation = (page) => {
     navigation.navigate(page);
   };
+  useEffect(() => {
+    getStoredData()
+      .then((res) => {
+        setUser(JSON.parse(res));
+      })
+      .catch((error) => console.error(error));
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      user &&
+        user_balance(user?._id).then((res) => {
+          setBalance(res);
+        });
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [user]);
+
+  useEffect(() => {
+    if (isRotating) {
+      const animation = Animated.loop(
+        Animated.timing(rotation, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        })
+      );
+      animation.start();
+      return () => animation.stop();
+    }
+  }, [isRotating, rotation]);
+
+  const handleRotate = () => {
+    setIsRotating(!isRotating);
+    if (!isRotating) {
+      setTimeout(() => {
+        setIsRotating(false);
+      }, 5000);
+    }
+    user &&
+      user_balance(user?._id).then((res) => {
+        setBalance(res);
+      });
+  };
+
+  const rotate = rotation.interpolate({
+    inputRange: [0, 5],
+    outputRange: ["0deg", "360deg"],
+  });
 
   return (
     <View
@@ -34,10 +92,12 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.walletContainer}>
         <View>
           <View style={styles.walletInfo}>
-            <Text style={styles.text}>412.85</Text>
+            <Text style={styles.text}>{balance ? balance : 0}</Text>
             <View style={styles.refreshView}>
-              <TouchableOpacity activeOpacity={0.3}>
-                <Icon name="refresh" size={20} color="#fff" />
+              <TouchableOpacity activeOpacity={0.3} onPress={handleRotate}>
+                <Animated.View style={{ transform: [{ rotate }] }}>
+                  <Icon name="refresh" size={20} color="#fff" />
+                </Animated.View>
               </TouchableOpacity>
             </View>
             <Text style={styles.subtext}>Wallet Balance</Text>

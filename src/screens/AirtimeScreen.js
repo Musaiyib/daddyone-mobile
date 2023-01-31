@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -12,24 +14,48 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import uuid from "react-native-uuid";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import { buyAirtime, getAirtimePlan } from "../api/subscription";
+import { getStoredData } from "../helpers/dataStorage";
 
 export default function AirtimeScreen() {
+  const navigation = useNavigation();
   const [network, setNetwork] = useState("");
-  const [phoneNum, setPhoneNum] = useState(null);
-  const [chosenPlan, setChosenPLan] = useState({});
+  const [phone, setPhone] = useState(null);
+  const [plan, setPlan] = useState({});
   const [trxPIN, setTrxPIN] = useState();
+  const [user, setUser] = useState();
 
-  const [subscriptions, setSubscriptions] = useState([
-    { duration: "2 days", amount: 1800, id: uuid.v4() },
-    { duration: "7 days", amount: 2800, id: uuid.v4() },
-    { duration: "1 months", amount: 3800, id: uuid.v4() },
-    { duration: "1 day", amount: 4800, id: uuid.v4() },
-    { duration: "3 days", amount: 5800, id: uuid.v4() },
-    { duration: "4 days", amount: 6800, id: uuid.v4() },
-  ]);
-
+  const [subscription, setSubscription] = useState();
+  useEffect(() => {
+    getStoredData()
+      .then((res) => setUser(JSON.parse(res)))
+      .catch((error) => console.error(error));
+  }, []);
+  const filterNetwork = (val) => {
+    getAirtimePlan().then((res) => {
+      setSubscription(res.airtimePlan.filter((plan) => plan.network === val));
+    });
+  };
+  useEffect(() => {
+    filterNetwork(network);
+  }, [network]);
   const handleBuyAirtime = () => {
-    phoneNum ? console.log(network) : null;
+    if (!user) return;
+    const { _id } = user;
+    buyAirtime({
+      network,
+      user: _id,
+      phone,
+      amount: plan.amount,
+    }).then((res) => {
+      if (!res.code || res.code !== 200) {
+        alert("🔐 Error 🔐 \n" + res);
+        return;
+      } else {
+        alert(res.message);
+        navigation.navigate("Dashboard");
+      }
+    });
   };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -63,33 +89,41 @@ export default function AirtimeScreen() {
           {network && (
             <View>
               <View style={styles.tableHead}>
-                <Text style={styles.headPlan}>Duration</Text>
+                <Text style={styles.headPlan}>Network</Text>
                 <Text style={styles.headAmount}>Amount(₦)</Text>
               </View>
-              <FlatList
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                data={subscriptions}
-                renderItem={({ item, index, separators }) => (
-                  <TouchableOpacity
-                    key={item.key}
-                    style={item.id === chosenPlan.id ? styles.selected : null}
-                    onPress={() => {
-                      setChosenPLan(item);
-                    }}
-                  >
-                    <View style={styles.item}>
-                      <Text style={styles.bodyPlan}>{item.duration}</Text>
-                      <Text style={styles.bodyAmount}>₦ {item.amount}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
+              {subscription.length !== 0 ? (
+                <FlatList
+                  ItemSeparatorComponent={() => (
+                    <View style={styles.separator} />
+                  )}
+                  data={subscription}
+                  renderItem={({ item, index, separators }) => (
+                    <TouchableOpacity
+                      key={item.key}
+                      style={item._id === plan._id ? styles.selected : null}
+                      onPress={() => {
+                        setPlan(item);
+                      }}
+                    >
+                      <View style={styles.item}>
+                        <Text style={styles.bodyPlan}>{item.network}</Text>
+                        <Text style={styles.bodyAmount}>₦ {item.amount}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                />
+              ) : (
+                <View style={{ alignItems: "center" }}>
+                  <Text style={{}}>No plan to display</Text>
+                </View>
+              )}
             </View>
           )}
           <View>
             <TextInput
               style={styles.buyDataInput}
-              onChangeText={(val) => setPhoneNum(val)}
+              onChangeText={(val) => setPhone(val)}
               placeholder="Phone Number"
               keyboardType="numeric"
             />

@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
+import { useEffect } from "react";
 import {
   Text,
   View,
@@ -36,14 +37,10 @@ export default function SettingsScreen() {
   const closeKeyboard = () => {
     console.log("PIN");
   };
-  getStoredData()
-    .then((res) => {
-      return res;
-    })
-    .then((res) => {
-      setUser(JSON.parse(res));
-    });
-  const { name, email, mobile, created_at, type } = user;
+  useEffect(() => {
+    getStoredData().then((res) => setUser(JSON.parse(res)));
+  }, []);
+  const { name, email, mobile, role } = user;
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ScrollView automaticallyAdjustKeyboardInsets={true}>
@@ -58,7 +55,7 @@ export default function SettingsScreen() {
           <View style={styles.wrapper} onPress={closeKeyboard}>
             <Text style={styles.heading}>Profile</Text>
             <View style={styles.profile}>
-              <Text style={styles.role}>{type}</Text>
+              <Text style={styles.role}>{role}</Text>
               <Text style={styles.userInfoLabel}>
                 Name:
                 <Text style={styles.userInfoValue}> {name}</Text>
@@ -75,10 +72,6 @@ export default function SettingsScreen() {
               <Text style={styles.userInfoLabel}>
                 Phone:
                 <Text style={styles.userInfoValue}> {mobile}</Text>
-              </Text>
-              <Text style={styles.userInfoLabel}>
-                Joined:
-                <Text style={styles.userInfoValue}> {created_at}</Text>
               </Text>
             </View>
             <Text style={[styles.heading, { marginTop: 25 }]}>Settings</Text>

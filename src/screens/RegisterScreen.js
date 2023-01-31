@@ -35,14 +35,15 @@ export default function RegisterScreen({ navigation }) {
         pin: trxPIN.value,
         name: name.value,
         mobile: mobile.value,
-        email_: email.value.toLocaleLowerCase(),
+        email: email.value.toLocaleLowerCase(),
         password: password.value,
       })
         .then((res) => {
           // handle success
-          console.log(res);
-          alert(res.msg);
-          // navigation.navigate("LoginScreen");
+          navigation.navigate("LoginScreen");
+        })
+        .catch((err) => {
+          alert(err);
         })
         .catch((err) => console.log(err));
     } catch (err) {

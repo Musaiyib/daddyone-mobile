@@ -6,7 +6,6 @@ import Logo from "../components/Logo";
 import Header from "../components/Header";
 import Button from "../components/Button";
 import TextInput from "../components/TextInput";
-import BackButton from "../components/BackButton";
 import { theme } from "../core/theme";
 import { emailValidator } from "../helpers/emailValidator";
 import { passwordValidator } from "../helpers/passwordValidator";
@@ -34,9 +33,12 @@ export default function LoginScreen() {
           .then((res) => {
             // handle success
             saveData(res);
-            if (res.code === 419) {
-              alert("🔐 login error 🔐 \n" + res.msg);
+            console.log(res);
+            if (!res.code || res.code !== 200) {
+              alert("🔐 login error 🔐 \n" + res);
+              return;
             } else {
+              console.log(res);
               navigation.navigate("Dashboard", {
                 screen: "Dashboard",
               });
