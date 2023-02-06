@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
+  Linking,
   Platform,
   Pressable,
   Animated,
@@ -80,6 +80,12 @@ export default function HomeScreen({ navigation }) {
     outputRange: ["0deg", "360deg"],
   });
 
+  const phoneNumber = "08030ADMIN40";
+
+  const handleCall = () => {
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
   return (
     <View
       style={{
@@ -102,11 +108,12 @@ export default function HomeScreen({ navigation }) {
             </View>
             <Text style={styles.subtext}>Wallet Balance</Text>
             <View style={styles.fundWalletView}>
-              <Button
-                title="+Fund Wallet"
+              <TouchableOpacity
                 style={styles.fundBTN}
-                color="tomato"
-              />
+                onPress={() => handleNavigation("FundAccount")}
+              >
+                <Text style={{ color: "tomato" }}>+Fund Wallet</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -192,7 +199,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.subTitle}>Suprise Someone</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleNavigation("Contact")}>
+        <TouchableOpacity onPress={handleCall}>
           <View style={styles.item}>
             <MaterialIcon
               name="face-agent"

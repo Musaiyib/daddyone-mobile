@@ -12,6 +12,7 @@ import TransactionsScreen from "./screens/TransactionsScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import BalanceScreen from "./screens/BalanceScreen";
 import CableTvScreen from "./screens/CableTvScreen";
+import FundAccount from "./screens/FundAccount";
 
 import { Platform, Text } from "react-native";
 import ElectricityScreen from "./screens/ElectricityScreen";
@@ -72,6 +73,7 @@ const MainContainer = ({ naviagtion }) => {
             <Stack.Navigator>
               <Stack.Screen name="Dashboard" component={HomeScreen} />
               <Stack.Screen name="Balance" component={BalanceScreen} />
+              <Stack.Screen name="FundAccount" component={FundAccount} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="Buy Data" component={DataScreen} />
               <Stack.Screen name="Cable TV" component={CableTvScreen} />

@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { userTrx } from "../api/trx_api";
-import Button from "../components/Button";
 import { getStoredData } from "../helpers/dataStorage";
 
 export default function TransactionsScreen({ navigation }) {

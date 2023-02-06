@@ -12,40 +12,24 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import uuid from "react-native-uuid";
 import AntDesign from "react-native-vector-icons/AntDesign";
-import { buyAirtime, getAirtimePlan } from "../api/subscription";
+import { fundAccount } from "../api/user_api";
 import { getStoredData } from "../helpers/dataStorage";
 
-export default function AirtimeScreen() {
+export default function FundAccount() {
   const navigation = useNavigation();
-  const [network, setNetwork] = useState("");
-  const [phone, setPhone] = useState(null);
   const [amount, setAmount] = useState({});
-  const [trxPIN, setTrxPIN] = useState();
   const [user, setUser] = useState();
-
-  const [subscription, setSubscription] = useState();
   useEffect(() => {
     getStoredData()
       .then((res) => setUser(JSON.parse(res)))
       .catch((error) => console.error(error));
   }, []);
-  const filterNetwork = (val) => {
-    getAirtimePlan().then((res) => {
-      setSubscription(res.airtimePlan.filter((plan) => plan.network === val));
-    });
-  };
-  useEffect(() => {
-    filterNetwork(network);
-  }, [network]);
-  const handleBuyAirtime = () => {
+  const handleFundAccount = () => {
     if (!user) return;
     const { _id } = user;
-    buyAirtime({
-      network,
-      user: _id,
-      phone,
+    fundAccount({
+      id: _id,
       amount: amount,
     }).then((res) => {
       if (!res.code || res.code !== 200) {
@@ -67,54 +51,21 @@ export default function AirtimeScreen() {
           paddingTop: 15,
         }}
       >
-        <View style={styles.wrapper}>
-          <RNPickerSelect
-            onValueChange={(value) => setNetwork(value)}
-            style={styles.pickerSelectStyles}
-            Icon={() => (
-              <AntDesign
-                name="caretdown"
-                size={15}
-                color={"black"}
-                style={{ position: "absolute", top: 15, right: 15 }}
-              />
-            )}
-            items={[
-              { label: "MTN", value: "mtn" },
-              { label: "AIRTEL", value: "airtel" },
-              { label: "9MOBILE", value: "9mobile" },
-              { label: "GLO", value: "glo" },
-            ]}
+        <Text>Fund Account</Text>
+        <View>
+          <TextInput
+            style={styles.buyDataInput}
+            onChangeText={(val) => setAmount(val)}
+            placeholder="Amount"
+            keyboardType="numeric"
           />
-
-          <View>
-            <TextInput
-              style={styles.buyDataInput}
-              onChangeText={(val) => setAmount(val)}
-              placeholder="Amount"
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.buyDataInput}
-              onChangeText={(val) => setPhone(val)}
-              placeholder="Phone Number"
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.buyDataInput}
-              onChangeText={(val) => setTrxPIN(val)}
-              value={trxPIN}
-              placeholder="Transaction PIN"
-              keyboardType="numeric"
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.customBtnBG}
-            onPress={handleBuyAirtime}
-          >
-            <Text style={styles.btnText}>Buy Airtime</Text>
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={styles.customBtnBG}
+          onPress={handleFundAccount}
+        >
+          <Text style={styles.btnText}>Fund Account</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );

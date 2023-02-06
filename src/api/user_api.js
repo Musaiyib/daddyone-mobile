@@ -49,6 +49,31 @@ export const user_balance = async (id) => {
   }
 };
 
+/**
+ * Makes a POST request to the API to buy data
+ * @param {Object} data - The data to send to the API
+ * @returns {Object} The API response
+ */
+export const fundAccount = async (data) => {
+  try {
+    // Make the API request
+    const response = await ApiManager(`/users/wallet/balance/${data.id}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      data: data,
+    });
+    // Extract the data from the response
+    const { data: result } = response;
+    return result;
+  } catch (error) {
+    // Log the error to the console
+    console.error(error.response.data.error);
+    return error.response.data.error;
+  }
+};
+
 export const user_forgot_password = async (data) => {
   try {
     const { data: result } = await ApiManager("/forgot", {
